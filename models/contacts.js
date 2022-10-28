@@ -1,16 +1,11 @@
 const { writeFile, readFile } = require("fs").promises;
-const { normalize, resolve } = require("path");
+const { resolve } = require("path");
 
-const safeJoin = (base, target) => {
-  const targetPath = "." + normalize("/" + target);
-  return resolve(base, targetPath);
-};
-
-const contactsPath = safeJoin(__dirname, "contacts.json");
+const contactsPath = resolve("./models/contacts.json");
 
 const listContacts = async () => {
   try {
-    const list = await readFile(contactsPath, "utf8");
+    const list = JSON.parse(await readFile(contactsPath, "utf8"));
 
     return list;
   } catch (error) {
@@ -20,7 +15,7 @@ const listContacts = async () => {
 
 const getContactById = async (contactId) => {
   try {
-    const list = JSON.parse(await listContacts());
+    const list = await listContacts();
 
     const contactWanted = list.find((c) => Number(c.id) === Number(contactId));
 
@@ -32,7 +27,7 @@ const getContactById = async (contactId) => {
 
 const removeContact = async (contactId) => {
   try {
-    const list = JSON.parse(await listContacts());
+    const list = await listContacts();
 
     const removedContact = list.filter(
       (c) => Number(c.id) === Number(contactId)
@@ -55,7 +50,7 @@ const removeContact = async (contactId) => {
 const addContact = async (body) => {
   const { email, name, phone } = body;
   try {
-    const list = JSON.parse(await listContacts());
+    const list = await listContacts();
     const lastId = list.reduce((a, b) => {
       const prevId = Number(a.id);
       const nextId = Number(b.id);
@@ -90,7 +85,7 @@ const updateContact = async (contactId, body) => {
 
       await removeContact(contactId);
 
-      const list = JSON.parse(await listContacts());
+      const list = await listContacts();
       const sortedList = [...list, updateContact].sort(
         (a, b) => Number(a.id) - Number(b.id)
       );
@@ -115,9 +110,3 @@ module.exports = {
   addContact,
   updateContact,
 };
-
-// updateContact(9, { name: "Mango", email: "a@b.c" });
-
-// removeContact(5);
-
-// listContacts();

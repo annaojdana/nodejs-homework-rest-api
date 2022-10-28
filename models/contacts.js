@@ -1,12 +1,12 @@
-const { writeFile, readFile } = require("fs").promises;
 const { resolve } = require("path");
+
+const { readJsonFile, writeJsonFile } = require("../utils/fileOperations");
 
 const contactsPath = resolve("./models/contacts.json");
 
 const listContacts = async () => {
   try {
-    const list = JSON.parse(await readFile(contactsPath, "utf8"));
-
+    const list = readJsonFile(contactsPath);
     return list;
   } catch (error) {
     console.log(error);
@@ -17,9 +17,9 @@ const getContactById = async (contactId) => {
   try {
     const list = await listContacts();
 
-    const contactWanted = list.find((c) => Number(c.id) === Number(contactId));
+    const contact = list.find((c) => c.id === contactId);
 
-    return contactWanted;
+    return contact;
   } catch (error) {
     console.log(error);
   }
@@ -29,17 +29,13 @@ const removeContact = async (contactId) => {
   try {
     const list = await listContacts();
 
-    const removedContact = list.filter(
-      (c) => Number(c.id) === Number(contactId)
+    const removedContact = getContactById(contactId);
+
+    const listWithoutRemovedContact = list.filter(
+      (c) => Number(c.id) !== Number(contactId)
     );
 
-    const contactsListWithoutDeleteContact = JSON.stringify(
-      list.filter((c) => Number(c.id) !== Number(contactId)),
-      null,
-      2
-    );
-
-    await writeFile(contactsPath, contactsListWithoutDeleteContact);
+    await writeJsonFile(contactsPath, listWithoutRemovedContact);
 
     return removedContact;
   } catch (error) {

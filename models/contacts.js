@@ -89,7 +89,7 @@ const updateContact = async (contactId, body) => {
 
     if (validationBodyError) {
       console.log(validationBodyError.message);
-      return validationBodyError;
+      return "validation";
     }
 
     if (!contact) {
@@ -108,7 +108,7 @@ const updateContact = async (contactId, body) => {
     const sortedList = [...list, updateContact].sort(
       (a, b) => Number(a.id) - Number(b.id)
     );
-    console.log(sortedList);
+
     await writeJsonFile(contactsPath, sortedList);
 
     return updateContact;
@@ -117,7 +117,6 @@ const updateContact = async (contactId, body) => {
   }
 };
 
-updateContact("5", { name: "Mango de apple" });
 
 module.exports = {
   listContacts,

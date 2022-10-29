@@ -1,6 +1,10 @@
 const { resolve } = require("path");
 
 const { readJsonFile, writeJsonFile } = require("../utils/fileOperations");
+const {
+  validationAddContact,
+  validationUpdateContact,
+} = require("../utils/validation");
 
 const contactsPath = resolve("./models/contacts.json");
 
@@ -73,31 +77,32 @@ const addContact = async (body) => {
 const updateContact = async (contactId, body) => {
   try {
     const contact = await getContactById(contactId);
-    if (contact) {
-      const updateContact = {
-        ...contact,
-        ...body,
-      };
+    if (!contact) return "There is no such contact.";
 
-      await removeContact(contactId);
+    const updateContact = {
+      ...contact,
+      ...body,
+    };
 
-      const list = await listContacts();
-      const sortedList = [...list, updateContact].sort(
-        (a, b) => Number(a.id) - Number(b.id)
-      );
+    await removeContact(contactId);
 
-      const updateList = JSON.stringify(sortedList, null, 2);
-      console.log(updateList);
+    const list = await listContacts();
+    const sortedList = [...list, updateContact].sort(
+      (a, b) => Number(a.id) - Number(b.id)
+    );
 
-      await writeFile(contactsPath, updateList);
+    const updateList = JSON.stringify(sortedList, null, 2);
+    console.log(updateList);
 
-      return await listContacts();
-    }
-    return console.log("Nie ma takiego kontaktu");
+    await writeFile(contactsPath, updateList);
+
+    return await listContacts();
   } catch (error) {
     console.log(error);
   }
 };
+
+updateContact(15, { name: Mango });
 
 module.exports = {
   listContacts,

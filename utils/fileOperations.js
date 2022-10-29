@@ -1,7 +1,7 @@
 const { writeFile, readFile } = require("fs").promises;
 
 const readJsonFile = async (filePath) => {
-  const file = await readFile(filePath, "utf-8");
+  const file = await readFile(filePath);
   return JSON.parse(file);
 };
 

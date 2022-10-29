@@ -1,17 +1,16 @@
 const { resolve } = require("path");
 
 const { readJsonFile, writeJsonFile } = require("../utils/fileOperations");
-// const {
-//   validationAddContact,
-//   validationUpdateContact,
-// } = require("../utils/validation");
+const {
+  validationAddContact,
+  validationUpdateContact,
+} = require("../utils/validation");
 
-const contactsPath = resolve("./models/contacts.json");
+const contactsPath = resolve("./contacts.json");
 
 const listContacts = async () => {
   try {
-    const list = readJsonFile(contactsPath);
-    console.log(list);
+    const list = await readJsonFile(contactsPath);
     return list;
   } catch (error) {
     console.log(error);
@@ -51,7 +50,15 @@ const removeContact = async (contactId) => {
 const addContact = async (body) => {
   const { email, name, phone } = body;
   try {
+    const validationBodyError = validationAddContact(body).error;
+
+    if (validationBodyError) {
+      console.log(validationBodyError.message);
+      return validationBodyError.message;
+    }
+
     const list = await listContacts();
+
     const lastId = list.reduce((a, b) => {
       const prevId = Number(a.id);
       const nextId = Number(b.id);
@@ -65,11 +72,11 @@ const addContact = async (body) => {
       phone: String(phone),
     };
 
-    const newList = JSON.stringify([...list, newContact], null, 2);
+    const newList = [...list, newContact];
 
-    await writeFile(contactsPath, newList);
+    await writeJsonFile(contactsPath, newList);
 
-    return await listContacts();
+    return newContact;
   } catch (error) {
     console.log(error);
   }
@@ -78,7 +85,17 @@ const addContact = async (body) => {
 const updateContact = async (contactId, body) => {
   try {
     const contact = await getContactById(contactId);
-    if (!contact) return "There is no such contact.";
+    const validationBodyError = validationUpdateContact(body).error;
+
+    if (validationBodyError) {
+      console.log(validationBodyError.message);
+      return validationBodyError;
+    }
+
+    if (!contact) {
+      console.log("There is no such contact.");
+      return "There is no such contact.";
+    }
 
     const updateContact = {
       ...contact,
@@ -91,19 +108,16 @@ const updateContact = async (contactId, body) => {
     const sortedList = [...list, updateContact].sort(
       (a, b) => Number(a.id) - Number(b.id)
     );
+    console.log(sortedList);
+    await writeJsonFile(contactsPath, sortedList);
 
-    const updateList = JSON.stringify(sortedList, null, 2);
-    console.log(updateList);
-
-    await writeFile(contactsPath, updateList);
-
-    return await listContacts();
+    return updateContact;
   } catch (error) {
     console.log(error);
   }
 };
 
-updateContact("15", { name: "Mango" });
+updateContact("5", { name: "Mango de apple" });
 
 module.exports = {
   listContacts,

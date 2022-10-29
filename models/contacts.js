@@ -6,10 +6,13 @@ const {
   validationUpdateContact,
 } = require("../utils/validation");
 
-const contactsPath = resolve("./contacts.json");
+const { safeJoin } = require("../utils/path");
+
+const contactsPath = safeJoin(__dirname, "contacts.json");
 
 const listContacts = async () => {
   try {
+    console.log(contactsPath);
     const list = await readJsonFile(contactsPath);
     return list;
   } catch (error) {
@@ -20,8 +23,8 @@ const listContacts = async () => {
 const getContactById = async (contactId) => {
   try {
     const list = await listContacts();
-
-    const contact = list.find((c) => c.id === contactId);
+    console.log(list);
+    const contact = list.find((c) => Number(c.id) === Number(contactId));
 
     return contact;
   } catch (error) {
@@ -116,7 +119,6 @@ const updateContact = async (contactId, body) => {
     console.log(error);
   }
 };
-
 
 module.exports = {
   listContacts,

@@ -1,16 +1,17 @@
 const { resolve } = require("path");
 
 const { readJsonFile, writeJsonFile } = require("../utils/fileOperations");
-const {
-  validationAddContact,
-  validationUpdateContact,
-} = require("../utils/validation");
+// const {
+//   validationAddContact,
+//   validationUpdateContact,
+// } = require("../utils/validation");
 
 const contactsPath = resolve("./models/contacts.json");
 
 const listContacts = async () => {
   try {
     const list = readJsonFile(contactsPath);
+    console.log(list);
     return list;
   } catch (error) {
     console.log(error);
@@ -102,7 +103,7 @@ const updateContact = async (contactId, body) => {
   }
 };
 
-updateContact(15, { name: Mango });
+updateContact("15", { name: "Mango" });
 
 module.exports = {
   listContacts,

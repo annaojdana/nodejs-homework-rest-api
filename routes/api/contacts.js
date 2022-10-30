@@ -2,7 +2,7 @@ const express = require("express");
 const {
   validationAddContact,
   validationUpdateContact,
-} = require("../utils/validation");
+} = require("../../utils/validation");
 const {
   listContacts,
   addContact,
@@ -51,14 +51,8 @@ router.delete("/:contactId", async (req, res, next) => {
   const { contactId } = req.params;
   const contact = await removeContact(contactId);
 
-  if (contact) {
-    return res.status(204).json({
-      message: "Contact deleted",
-    });
-  }
-
-  res.status(404).json({
-    message: "Not found",
+  return res.status(204).json({
+    message: `You remove this contact ${contact}`,
   });
 });
 

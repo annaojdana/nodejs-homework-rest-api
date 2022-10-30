@@ -1,5 +1,3 @@
-const { resolve } = require("path");
-
 const { readJsonFile, writeJsonFile } = require("../utils/fileOperations");
 const {
   validationAddContact,
@@ -53,13 +51,6 @@ const removeContact = async (contactId) => {
 const addContact = async (body) => {
   const { email, name, phone } = body;
   try {
-    const validationBodyError = validationAddContact(body).error;
-
-    if (validationBodyError) {
-      console.log(validationBodyError.message);
-      return validationBodyError.message;
-    }
-
     const list = await listContacts();
 
     const lastId = list.reduce((a, b) => {
@@ -87,18 +78,7 @@ const addContact = async (body) => {
 
 const updateContact = async (contactId, body) => {
   try {
-    const contact = await getContactById(contactId);
-    const validationBodyError = validationUpdateContact(body).error;
-
-    if (validationBodyError) {
-      console.log(validationBodyError.message);
-      return "validation";
-    }
-
-    if (!contact) {
-      console.log("There is no such contact.");
-      return "There is no such contact.";
-    }
+    const contact = await getContactById(contactId);  
 
     const updateContact = {
       ...contact,

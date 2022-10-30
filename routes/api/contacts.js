@@ -1,5 +1,9 @@
 const express = require("express");
 const {
+  validationAddContact,
+  validationUpdateContact,
+} = require("../utils/validation");
+const {
   listContacts,
   addContact,
   getContactById,
@@ -31,6 +35,12 @@ router.get("/:contactId", async (req, res, next) => {
 });
 
 router.post("/", async (req, res, next) => {
+  const validationError = validationAddContact(req.body).error;
+  if (validationError) {
+    return res.status(400).json({
+      message: validationError.message,
+    });
+  }
   const contact = await addContact(req.body);
   res.status(201).json({
     data: { contact },
@@ -38,43 +48,39 @@ router.post("/", async (req, res, next) => {
 });
 
 router.delete("/:contactId", async (req, res, next) => {
-    const { contactId } = req.params;
-    const contact = await removeContact(contactId);
+  const { contactId } = req.params;
+  const contact = await removeContact(contactId);
 
-    if (contact) {
-      return res.status(204).json({
-        message: "Contact deleted",
-      });
-    }
-
-    res.status(404).json({
-      message: "Not found",
+  if (contact) {
+    return res.status(204).json({
+      message: "Contact deleted",
     });
+  }
+
+  res.status(404).json({
+    message: "Not found",
+  });
 });
 
 router.put("/:contactId", async (req, res, next) => {
   const { contactId } = req.params;
-  const contact = await updateContact(contactId, req.body);
-
-  switch (contact) {
-    case "not-found":
-      res.status(404).json({
-        message: "Not found",
-      });
-      break;
-
-    case "bad-request":
-      res.status(400).json({
-        message: "Missing fields",
-      });
-      break;
-
-    default:
-      res.status(200).json({
-        data: { contact },
-      });
-      break;
+  const contact = await getContactById(contactId);
+  const validationError = validationUpdateContact(req.body).error;
+  if (!contact) {
+    return res.status(404).json({
+      message: "Not found",
+    });
   }
+  if (validationError) {
+    return res.status(400).json({
+      message: validationError.message,
+    });
+  }
+  const updatedContact = await updateContact(contactId, req.body);
+
+  res.status(200).json({
+    data: { updatedContact },
+  });
 });
 
 module.exports = router;

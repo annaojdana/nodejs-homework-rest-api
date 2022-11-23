@@ -1,69 +1,28 @@
 const express = require("express");
 const router = express.Router();
-const ctrlTask = require("../controller");
+const contactController = require("../controller/index");
+const {
+  validationAddContact,
+  validationUpdateContact,
+} = require("../utilities/validation");
 
-router.get("/", async (req, res, next) => {
-  const contacts = await listContacts();
-  res.status(200).json({
-    data: { contacts },
-  });
-});
+router.get("/contacts", contactController.getAll);
 
-router.get("/:contactId", async (req, res, next) => {
-  const { contactId } = req.params;
-  const contact = await getContactById(contactId);
-  if (contact) {
-    return res.status(200).json({
-      data: { contact },
-    });
-  }
+router.get("/contacts/:contactId", contactController.getOne);
 
-  res.status(404).json({
-    message: "Not found",
-  });
-});
+router.post("/contacts", validationAddContact, contactController.create);
 
-router.post("/", async (req, res, next) => {
-  const validationError = validationAddContact(req.body).error;
-  if (validationError) {
-    return res.status(400).json({
-      message: validationError.message,
-    });
-  }
-  const contact = await addContact(req.body);
-  res.status(201).json({
-    data: { contact },
-  });
-});
+router.delete("/contacts/:contactId", contactController.remove);
 
-router.delete("/:contactId", async (req, res, next) => {
-  const { contactId } = req.params;
-  const contact = await removeContact(contactId);
+router.put(
+  "/contacts/:contactId",
+  validationUpdateContact,
+  contactController.update
+);
 
-  return res.status(204).json({
-    message: `You remove this contact ${contact}`,
-  });
-});
-
-router.put("/:contactId", async (req, res, next) => {
-  const { contactId } = req.params;
-  const contact = await getContactById(contactId);
-  const validationError = validationUpdateContact(req.body).error;
-  if (!contact) {
-    return res.status(404).json({
-      message: "Not found",
-    });
-  }
-  if (validationError) {
-    return res.status(400).json({
-      message: validationError.message,
-    });
-  }
-  const updatedContact = await updateContact(contactId, req.body);
-
-  res.status(200).json({
-    data: { updatedContact },
-  });
-});
+router.patch(
+  "/contacts/:contactId/favorite",
+  contactController.patchFavorite
+);
 
 module.exports = router;

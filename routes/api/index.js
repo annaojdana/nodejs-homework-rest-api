@@ -1,17 +1,6 @@
 const express = require("express");
-const {
-  validationAddContact,
-  validationUpdateContact,
-} = require("../../utils/validation");
-const {
-  listContacts,
-  addContact,
-  getContactById,
-  removeContact,
-  updateContact,
-} = require("../../models/contacts");
-
 const router = express.Router();
+const ctrlTask = require("../controller");
 
 router.get("/", async (req, res, next) => {
   const contacts = await listContacts();

@@ -17,7 +17,7 @@ app.use(express.json());
 
 app.use("/api", routerApi);
 
-app.use((_, res,__) => {
+app.use((_, res, __) => {
   res.status(404).json({
     status: "error",
     code: 404,

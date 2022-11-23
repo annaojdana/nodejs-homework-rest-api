@@ -4,7 +4,8 @@ const {
 
 const Contact = require("./schemas/contact.js");
 
-const getAllContacts = async () => Contact.find({}).lean();
+const getAllContacts = async () => await Contact.find({}).lean();
+
 const getOneContact = async (contactId) => {
   let objectIdContactId;
   try {

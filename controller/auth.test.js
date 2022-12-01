@@ -1,0 +1,34 @@
+const mongoose = require("mongoose");
+const request = require("supertest");
+const app = require("../app");
+require("dotenv").config();
+const { DB_URI } = process.env;
+
+beforeAll(async () => {
+  await mongoose.connect(DB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  });
+});
+
+describe("test login", () => {
+  test("test login route", async () => {
+    const credentials = {
+      email: "a@a.pl",
+      password: "123456789Aa@",
+    };
+    const response = await request(app)
+      .post("/api/users/login")
+      .send(credentials);
+
+    expect(response.statusCode).toBe(200);
+    expect(response.body.token).toBeTruthy();
+    expect(typeof response.body.user).toBe("object");
+    expect(typeof response.body.user.email).toBe("string");
+    expect(typeof response.body.user.subscription).toBe("string");
+  });
+});
+
+afterAll(async () => {
+  await mongoose.connection.close();
+});

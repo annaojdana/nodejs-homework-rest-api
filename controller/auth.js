@@ -108,10 +108,42 @@ const patchSubscription = async (req, res, next) => {
   }
 };
 
+const patchAvatar = async (req, res, next) => {
+  const { id } = req.user;
+  const avatarURL = `/avatars/av_${id}.jpg`;
+  if (!req.file) {
+    return res.status(400).json({ message: "This is not the photo" });
+  }
+  Jimp.read(`tmp/${req.file.filename}`)
+    .then((avatar) => {
+      return avatar.resize(250, 250).write(`public/avatars/av_${id}.jpg`);
+    })
+    .catch((error) => {
+      console.error(error);
+    });
+  await service.updateAvatar(id, avatarURL);
+  try {
+    fs.unlink(req.file.path, () => {
+      console.log("removed from tmp");
+    });
+    res.status(200).json({
+      status: "success",
+      code: 200,
+      message: "OK",
+      data: {
+        avatarURL,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   register,
   login,
   logout,
   getCurrent,
   patchSubscription,
+  patchAvatar
 };
